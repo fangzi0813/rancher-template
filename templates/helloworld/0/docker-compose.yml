@@ -1,5 +1,5 @@
 hello-world:
-  iamge: fangzi/chapter1
+  image: fangzi/chapter1
   tty: true
   restart: always
   labels:
