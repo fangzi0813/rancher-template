@@ -1,0 +1,13 @@
+hello-world:
+  iamge: fangzi/chapter1
+  tty: true
+  restart: always
+  labels:
+    io.rancher.container.pull_image: always
+hw-lb:
+  image: rancher/lb-service-haproxy:v0.7.1
+  ports:
+    - 8088:8088/tcp
+  labels:
+    io.rancher.container.agent.role: environmentAdmin
+    io.rancher.container.create_agent: 'true'
