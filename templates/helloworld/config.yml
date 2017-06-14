@@ -1,0 +1,6 @@
+name: HelloWorld
+description: |
+  A example of Spring boot
+version: v1
+category: Applications
+maintainer: fangzi<fangzi0813@foxmail.com>
