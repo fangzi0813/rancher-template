@@ -1,0 +1,40 @@
+.catalog:
+  name: "HelloWorld"
+  version: "v1"
+  description: "an example of spring boot"
+  uuid: helloworld
+  questions:
+    - variable: "scale"
+      description: "Number of example nodes."
+      label: "example Nodes:"
+      required: true
+      default: 3
+      type: "int"
+hello-world:
+  scale: ${scale}
+  health_check:
+    port: 8088
+    interval: 5000
+    unhealthy_threshold: 3
+    healthy_threshold: 2
+    response_timeout: 5000
+    request_line: 'GET "/" "HTTP/1.0"'
+hw-lb:
+  scale: 1
+  start_on_create: true
+  lb_config:
+    certs: []
+    port_rules:
+      - priority: 1
+        protocol: http
+        service: hello-world
+        source_port: 8088
+        target_port: 8088
+  health_check:
+    response_timeout: 2000
+    healthy_threshold: 2
+    port: 42
+    unhealthy_threshold: 3
+    initializing_timeout: 60000
+    interval: 2000
+    reinitializing_timeout: 60000
