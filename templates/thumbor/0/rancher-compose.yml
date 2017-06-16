@@ -17,13 +17,13 @@
       default: "gtintel"
       required: true
       type: "string"
-    - variable: "AWS_ACCESS_KEY_ID"
+    - variable: "ACCESS_KEY"
       description: |
         AWS_ACCESS_KEY_ID
       default: "admin"
       required: true
       type: "string"
-    - variable: "AWS_SECRET_ACCESS_KEY"
+    - variable: "SECRET_KEY"
       description: |
         AWS_SECRET_ACCESS_KEY
       default: "admin123"
