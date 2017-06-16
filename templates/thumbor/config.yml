@@ -1,0 +1,6 @@
+name: Thumbor
+description: |
+  Thumbor is a image process tool
+version: v1
+category: Applications
+maintainer: fangr <fangr@gtintel.cn>
