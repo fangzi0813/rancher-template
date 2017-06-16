@@ -1,0 +1,59 @@
+.catalog:
+  name: "Thumbor"
+  version: "v1"
+  description: "Thumbor is a image process server"
+  uuid: thumbor
+  questions:
+    - variable: "scale"
+      description: "Number of Thumbor nodes."
+      label: "Thumbor Nodes:"
+      required: true
+      default: 3
+      type: "int"
+    - variable: "SECURITY_KEY"
+      description: |
+        SECURITY_KEY is used for access control
+      label: "SECURITY_KEY"
+      default: "gtintel"
+      required: true
+      type: "string"
+    - variable: "AWS_ACCESS_KEY_ID"
+      description: |
+        AWS_ACCESS_KEY_ID
+      default: "admin"
+      required: true
+      type: "string"
+    - variable: "AWS_SECRET_ACCESS_KEY"
+      description: |
+        AWS_SECRET_ACCESS_KEY
+      default: "admin123"
+      required: true
+      type: "password"
+    - variable: "minio"
+      description: |
+        Choose the minio service to use. 
+        It's really recommended a dedicated minio service just for thumbor.
+      label: "Minio stack/service"
+      required: true
+      type: "service"
+thumbor:
+  scale: ${scale}
+thumbor-lb:
+  scale: 1
+  start_on_create: true
+  lb_config:
+    certs: []
+    port_rules:
+      - priority: 1
+        protocol: http
+        service: thumbor
+        source_port: 8000
+        target_port: 8000
+  health_check:
+    response_timeout: 2000
+    healthy_threshold: 2
+    port: 42
+    unhealthy_threshold: 3
+    initializing_timeout: 60000
+    interval: 2000
+    reinitializing_timeout: 60000
