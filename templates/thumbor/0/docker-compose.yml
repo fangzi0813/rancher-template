@@ -1,0 +1,21 @@
+thumbor:
+  image: '192.168.1.129:5000/gtintel/thumbor'
+  environment:
+      TC_AWS_ENDPOINT: http://minio
+      LOADER: tc_aws.loaders.s3_loader
+      SECURITY_KEY: ${SECURITY_KEY}
+      AWS_ACCESS_KEY_ID: ${ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${SECRET_KEY}
+  tty: true
+  external_links:
+    - ${minio}:minio
+  restart: on-failure
+  labels:
+    io.rancher.container.pull_image: always
+thumbor-lb:
+  image: rancher/lb-service-haproxy:v0.7.1
+  ports:
+    - 8000:8000/tcp
+  labels:
+    io.rancher.container.agent.role: environmentAdmin
+    io.rancher.container.create_agent: 'true'
