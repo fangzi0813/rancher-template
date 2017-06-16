@@ -1,7 +1,7 @@
 thumbor:
   image: '192.168.1.129:5000/gtintel/thumbor'
   environment:
-      TC_AWS_ENDPOINT: http://minio
+      TC_AWS_ENDPOINT: 'http://minio'
       LOADER: tc_aws.loaders.s3_loader
       SECURITY_KEY: ${SECURITY_KEY}
       AWS_ACCESS_KEY_ID: ${ACCESS_KEY}
