@@ -3,13 +3,12 @@ mongo-cluster:
   environment:
     MONGO_SERVICE_NAME: mongo-cluster
     CATTLE_SCRIPT_DEBUG: ${debug}
-    MONGODB_USER: ${user}
-    MONGODB_PASS: ${pass}
   entrypoint: /opt/rancher/bin/entrypoint.sh
   command:
   - --replSet
   - "${replset_name}"
-  image: tutum/mongodb
+  - --auth
+  image: mongodb:3.2
   labels:
     io.rancher.scheduler.affinity:host_label: ${host_label}
     io.rancher.container.hostname_override: container_name
