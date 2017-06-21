@@ -8,7 +8,7 @@ mongo-cluster:
   - --replSet
   - "${replset_name}"
   - --auth
-  image: mongodb:3.2
+  image: mongo:3.2
   labels:
     io.rancher.scheduler.affinity:host_label: ${host_label}
     io.rancher.container.hostname_override: container_name
