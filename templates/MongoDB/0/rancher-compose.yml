@@ -11,17 +11,6 @@
       type: "string"
       required: true
       default: "rs0"
-    - variable: user
-      description: "User of the MongoDB replicaSet"
-      label: "User Name"
-      type: "string"
-      required: true
-      default: "admin"
-    - variable: pass
-      description: "Password of the MongoDB replicaSet"
-      label: "Password"
-      type: "password"
-      required: true
     - variable: host_label
       label: "Host Label to MongoDB Tags"
       description: |
