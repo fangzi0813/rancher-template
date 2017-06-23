@@ -1,47 +1,34 @@
 .catalog:
-  name: "MongoDB"
+  name: "MongoShardedClusterServer"
   version: "1.0"
-  description: "Mongos"
-  uuid: mongodb-1
+  description: "MongoDB Sharded Cluster"
+  uuid: mongodb-shard-1
   minimum_rancher_version: v0.46.0
-  questions:
-    - variable: host_label
-      label: "Host Label to MongoDB Tags"
-      description: |
-        Host label to use as MongoDB 'value' tag.
-        Example: 'database'
-      required: false
+  questions:    
+    - variable: config_repl_set_name
+      description: "Name of the Config MongoDB replicaSet"
+      label: "Config ReplicaSet Name"
       type: "string"
-    - variable: debug
-      description: "Enable Debug log for Mongo containers"
-      label: "Debug"
+      required: true
+      default: "configReplSet"  
+    - variable: repl_set_prefix
+      description: "Prefix for the MongoDB replicaSet"
+      label: "ReplicaSet Prefix Name"
       type: "string"
-      required: false
-      default: ""
-mongo-cluster:
+      required: true
+      default: "rs"
+mongo-s:
+  scale: 3
+mongo-shard-one:
+  scale: 3
+mongo-shard-two:
+  scale: 3
+mongo-shard-three:
+  scale: 3
+mongo-config:
   scale: 3
   retain_ip: true
   metadata:
     mongo:
       yml:
-        replset.name: "rs0"
-mongo-cluster2:
-  scale: 3
-  retain_ip: true
-  metadata:
-    mongo:
-      yml:
-        replset.name: "rs1"
-mongo-cluster3:
-  scale: 3
-  retain_ip: true
-  metadata:
-    mongo:
-      yml:
-        replset.name: "rs2"
-mongo-cfg:
-  scale: 3
-  retain_ip: true
-mongos:
-  scale: 3
-  retain_ip: true
+        replset.name: "${config_repl_set_name}"

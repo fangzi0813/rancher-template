@@ -1,40 +1,141 @@
-mongo-cluster:
+mongo-config:
   restart: always
   environment:
-    MONGO_SERVICE_NAME: mongo-cluster
-    CATTLE_SCRIPT_DEBUG: ${debug}
-  entrypoint: /opt/rancher/bin/entrypoint.sh
-  command:
-  - --replSet
-  - "rs0"
+    MONGO_SERVICE_NAME: mongo-config
+  tty: true
+# mongodb config server is by default on port 27019
+# so it does not work with the default replicatset setup provided in the DockerImage since it contains a hard-coded 27017
+# but because of the way  entrypoint.sh  is coded, we can not send the port via command ...
+  entrypoint: "/opt/rancher/bin/entrypoint.sh --configsvr --port 27017 --replSet \"${config_repl_set_name}\""
   image: mongo:3.2
   labels:
-    io.rancher.scheduler.affinity:host_label: ${host_label}
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
     io.rancher.container.hostname_override: container_name
     io.rancher.sidekicks: mongo-base, mongo-datavolume
+    io.rancher.container.network: true
   volumes_from:
     - mongo-datavolume
     - mongo-base
+mongo-s:
+  restart: always
+  environment:
+    MONGO_SERVICE_NAME: mongo-s
+  tty: true
+  entrypoint: mongos --configdb ${config_repl_set_name}/mongo-config:27017
+  image: mongo:3.2
+  labels:
+    io.rancher.container.network: true
+  links: 
+     - mongo-config
+     
+mongo-shard-one:
+  restart: always
+  environment:
+    MONGO_SERVICE_NAME: mongo-shard-one
+    REPL_NAME: ${repl_set_prefix}_1
+  tty: true
+  entrypoint: "/opt/rancher/bin/entrypoint.sh --port 27017 --replSet \"${repl_set_prefix}_1\""
+  image: mongo:3.2
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.sidekicks: mongo-base-rs1, mongo-datavolume-rs1
+    io.rancher.container.network: true
+  volumes_from:
+    - mongo-datavolume-rs1
+    - mongo-base-rs1
+  links: 
+     - mongo-config
+mongo-shard-two:
+  restart: always
+  environment:
+    MONGO_SERVICE_NAME: mongo-shard-two
+    REPL_NAME: ${repl_set_prefix}_2
+  tty: true
+  entrypoint: "/opt/rancher/bin/entrypoint.sh --port 27017 --replSet \"${repl_set_prefix}_2\""
+  image: mongo:3.2
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.sidekicks: mongo-base-rs2, mongo-datavolume-rs2
+    io.rancher.container.network: true
+  volumes_from:
+    - mongo-datavolume-rs2
+    - mongo-base-rs2
+  links: 
+     - mongo-config    
+mongo-shard-three:
+  restart: always
+  environment:
+    MONGO_SERVICE_NAME: mongo-shard-two
+    REPL_NAME: ${repl_set_prefix}_3
+  tty: true
+  entrypoint: "/opt/rancher/bin/entrypoint.sh --port 27017 --replSet \"${repl_set_prefix}_3\""
+  image: mongo:3.2
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.sidekicks: mongo-base-rs3, mongo-datavolume-rs3
+    io.rancher.container.network: true
+  volumes_from:
+    - mongo-datavolume-rs3
+    - mongo-base-rs3
+  links: 
+     - mongo-config    
+
 mongo-base:
   restart: always
   net: none
+  tty: true
   labels:
-    io.rancher.scheduler.affinity:host_label: ${host_label}
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.pull_image: always
     io.rancher.container.hostname_override: container_name
     io.rancher.container.start_once: true
   image: rancher/mongodb-conf:v0.1.1
   stdin_open: true
   entrypoint: /bin/true
+  links: 
+     - mongo-s
+# each shard should have it's own base otherwise it creates some name conflict during the deployment  
+mongo-base-rs1:
+  restart: always
+  net: none
+  tty: true
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.container.hostname_override: container_name
+    io.rancher.container.start_once: true
+  image: fangzi/mongodb-config
+  stdin_open: true
+  entrypoint: /bin/true
+  links: 
+     - mongo-s
+mongo-base-rs2:
+  restart: always
+  net: none
+  tty: true
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.container.hostname_override: container_name
+    io.rancher.container.start_once: true
+  image: fangzi/mongodb-config
+  stdin_open: true
+  entrypoint: /bin/true
+  links: 
+     - mongo-s
+mongo-base-rs3:
+  restart: always
+  net: none
+  tty: true
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.container.hostname_override: container_name
+    io.rancher.container.start_once: true
+  image: fangzi/mongodb-config
+  stdin_open: true
+  entrypoint: /bin/true
+  links: 
+     - mongo-s
+
 mongo-datavolume:
   net: none
   labels:
-    io.rancher.scheduler.affinity:host_label: ${host_label}
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
     io.rancher.container.hostname_override: container_name
     io.rancher.container.start_once: true
   volumes:
@@ -42,43 +143,19 @@ mongo-datavolume:
   entrypoint: /bin/true
   image: busybox
 
-mongo-cluster2:
-  restart: always
-  environment:
-    MONGO_SERVICE_NAME: mongo-cluster2
-    CATTLE_SCRIPT_DEBUG: ${debug}
-  entrypoint: /opt/rancher/bin/entrypoint.sh
-  command:
-  - --replSet
-  - "rs1"
-  image: mongo:3.2
-  labels:
-    io.rancher.scheduler.affinity:host_label: ${host_label}
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
-    io.rancher.container.hostname_override: container_name
-    io.rancher.sidekicks: mongo-base2, mongo-datavolume2
-  volumes_from:
-    - mongo-datavolume2
-    - mongo-base2
-mongo-base2:
-  restart: always
+# each shard should have it's own datavolume otherwise it creates some name conflict during the deployment  
+mongo-datavolume-rs1:
   net: none
   labels:
-    io.rancher.scheduler.affinity:host_label: ${host_label}
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
     io.rancher.container.hostname_override: container_name
     io.rancher.container.start_once: true
-  image: rancher/mongodb-conf:v0.1.1
-  stdin_open: true
+  volumes:
+    - /data/db
   entrypoint: /bin/true
-mongo-datavolume2:
+  image: busybox
+mongo-datavolume-rs2:
   net: none
   labels:
-    io.rancher.scheduler.affinity:host_label: ${host_label}
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
     io.rancher.container.hostname_override: container_name
     io.rancher.container.start_once: true
   volumes:
@@ -86,82 +163,12 @@ mongo-datavolume2:
   entrypoint: /bin/true
   image: busybox
 
-mongo-cluster3:
-  restart: always
-  environment:
-    MONGO_SERVICE_NAME: mongo-cluster3
-    CATTLE_SCRIPT_DEBUG: ${debug}
-  entrypoint: /opt/rancher/bin/entrypoint.sh
-  command:
-  - --replSet
-  - "rs2"
-  image: mongo:3.2
-  labels:
-    io.rancher.scheduler.affinity:host_label: ${host_label}
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
-    io.rancher.container.hostname_override: container_name
-    io.rancher.sidekicks: mongo-base3, mongo-datavolume3
-  volumes_from:
-    - mongo-datavolume3
-    - mongo-base3
-mongo-base3:
-  restart: always
+mongo-datavolume-rs3:
   net: none
   labels:
-    io.rancher.scheduler.affinity:host_label: ${host_label}
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
     io.rancher.container.hostname_override: container_name
     io.rancher.container.start_once: true
-  image: rancher/mongodb-conf:v0.1.1
-  stdin_open: true
-  entrypoint: /bin/true
-mongo-datavolume3:
-  net: none
-  labels:
-    io.rancher.scheduler.affinity:host_label: ${host_label}
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
-    io.rancher.container.hostname_override: container_name
-    io.rancher.container.start_once: true
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
   volumes:
     - /data/db
   entrypoint: /bin/true
   image: busybox
-
-mongo-cfg:
-  image: mongo:3.2
-  stdin_open: true
-  volumes:
-  - /data/db
-  tty: true
-  command:
-  - --noprealloc
-  - --smallfiles
-  - --configsvr
-  - --dbpath
-  - /data/db
-  - --port
-  - '27017'
-  labels:
-    io.rancher.scheduler.affinity:host_label: mongodb=true
-    io.rancher.container.pull_image: always
-    io.rancher.scheduler.global: 'true'
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
-
-mongos:
-  image: 192.168.1.129:5000/gtintel/mongos
-  stdin_open: true
-  tty: true
-  ports:
-  - 27017:27017/tcp
-  command:
-  - --port
-  - '27017'
-  - --configdb
-  - $${stack_name}-mongo-cfg-1:27017,$${stack_name}-mongo-cfg-2:27017,$${stack_name}-mongo-cfg-3:27017
-  labels:
-    io.rancher.container.pull_image: always
-    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
