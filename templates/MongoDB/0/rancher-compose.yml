@@ -1,16 +1,10 @@
 .catalog:
   name: "MongoDB"
-  version: "3.2-rancher2"
-  description: "MongoDB Replica Set"
+  version: "1.0"
+  description: "Mongos"
   uuid: mongodb-1
   minimum_rancher_version: v0.46.0
   questions:
-    - variable: replset_name
-      description: "Name of the MongoDB replicaSet"
-      label: "ReplicaSet Name"
-      type: "string"
-      required: true
-      default: "rs0"
     - variable: host_label
       label: "Host Label to MongoDB Tags"
       description: |
@@ -30,4 +24,24 @@ mongo-cluster:
   metadata:
     mongo:
       yml:
-        replset.name: "${replset_name}"
+        replset.name: "rs0"
+mongo-cluster2:
+  scale: 3
+  retain_ip: true
+  metadata:
+    mongo:
+      yml:
+        replset.name: "rs1"
+mongo-cluster3:
+  scale: 3
+  retain_ip: true
+  metadata:
+    mongo:
+      yml:
+        replset.name: "rs2"
+mongo-cfg:
+  scale: 3
+  retain_ip: true
+mongos:
+  scale: 3
+  retain_ip: true
