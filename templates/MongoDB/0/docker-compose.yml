@@ -6,7 +6,7 @@ mongo-config:
 # mongodb config server is by default on port 27019
 # so it does not work with the default replicatset setup provided in the DockerImage since it contains a hard-coded 27017
 # but because of the way  entrypoint.sh  is coded, we can not send the port via command ...
-  entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /mongodb-keyfile --configsvr --port 27017 --replSet \"${config_repl_set_name}\""
+  entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /sec/mongo/mongodb-keyfile --configsvr --port 27017 --replSet \"${config_repl_set_name}\""
   image: mongo:3.2
   labels:
     io.rancher.container.hostname_override: container_name
@@ -20,7 +20,7 @@ mongo-s:
   environment:
     MONGO_SERVICE_NAME: mongo-s
   tty: true
-  entrypoint: mongos --keyFile /mongodb-keyfile --configdb ${config_repl_set_name}/mongo-config:27017
+  entrypoint: mongos --keyFile /sec/mongo/mongodb-keyfile --configdb ${config_repl_set_name}/mongo-config:27017
   image: mongo:3.2
   labels:
     io.rancher.container.network: true
@@ -33,7 +33,7 @@ mongo-shard-one:
     MONGO_SERVICE_NAME: mongo-shard-one
     REPL_NAME: ${repl_set_prefix}_1
   tty: true
-  entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /mongodb-keyfile --port 27017 --replSet \"${repl_set_prefix}_1\""
+  entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /sec/mongo/mongodb-keyfile --port 27017 --replSet \"${repl_set_prefix}_1\""
   image: mongo:3.2
   labels:
     io.rancher.container.hostname_override: container_name
@@ -50,7 +50,7 @@ mongo-shard-two:
     MONGO_SERVICE_NAME: mongo-shard-two
     REPL_NAME: ${repl_set_prefix}_2
   tty: true
-  entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /mongodb-keyfile --port 27017 --replSet \"${repl_set_prefix}_2\""
+  entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /sec/mongo/mongodb-keyfile --port 27017 --replSet \"${repl_set_prefix}_2\""
   image: mongo:3.2
   labels:
     io.rancher.container.hostname_override: container_name
@@ -67,7 +67,7 @@ mongo-shard-three:
     MONGO_SERVICE_NAME: mongo-shard-two
     REPL_NAME: ${repl_set_prefix}_3
   tty: true
-  entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /mongodb-keyfile --port 27017 --replSet \"${repl_set_prefix}_3\""
+  entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /sec/mongo/mongodb-keyfile --port 27017 --replSet \"${repl_set_prefix}_3\""
   image: mongo:3.2
   labels:
     io.rancher.container.hostname_override: container_name
