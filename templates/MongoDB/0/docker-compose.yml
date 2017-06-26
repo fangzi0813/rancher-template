@@ -24,10 +24,10 @@ mongo-s:
   image: mongo:3.2
   labels:
     io.rancher.container.network: true
-  links: 
-     - mongo-config
   volumes_from:
-    - mongo-base     
+    - mongo-base
+  links: 
+    - mongo-config  
 mongo-shard-one:
   restart: always
   environment:
@@ -44,7 +44,7 @@ mongo-shard-one:
     - mongo-datavolume-rs1
     - mongo-base-rs1
   links: 
-     - mongo-config
+    - mongo-config
 mongo-shard-two:
   restart: always
   environment:
@@ -61,7 +61,7 @@ mongo-shard-two:
     - mongo-datavolume-rs2
     - mongo-base-rs2
   links: 
-     - mongo-config    
+    - mongo-config    
 mongo-shard-three:
   restart: always
   environment:
@@ -78,7 +78,7 @@ mongo-shard-three:
     - mongo-datavolume-rs3
     - mongo-base-rs3
   links: 
-     - mongo-config    
+    - mongo-config    
 
 mongo-base:
   restart: always
@@ -92,7 +92,7 @@ mongo-base:
   stdin_open: true
   entrypoint: /bin/true
   links: 
-     - mongo-s
+    - mongo-s
 # each shard should have it's own base otherwise it creates some name conflict during the deployment  
 mongo-base-rs1:
   restart: always
@@ -106,7 +106,7 @@ mongo-base-rs1:
   stdin_open: true
   entrypoint: /bin/true
   links: 
-     - mongo-s
+    - mongo-s
 mongo-base-rs2:
   restart: always
   net: none
@@ -119,7 +119,7 @@ mongo-base-rs2:
   stdin_open: true
   entrypoint: /bin/true
   links: 
-     - mongo-s
+    - mongo-s
 mongo-base-rs3:
   restart: always
   net: none
@@ -132,7 +132,7 @@ mongo-base-rs3:
   stdin_open: true
   entrypoint: /bin/true
   links: 
-     - mongo-s
+    - mongo-s
 
 mongo-datavolume:
   net: none
