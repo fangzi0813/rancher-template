@@ -26,7 +26,8 @@ mongo-s:
     io.rancher.container.network: true
   links: 
      - mongo-config
-     
+  volumes_from:
+    - mongo-base     
 mongo-shard-one:
   restart: always
   environment:
