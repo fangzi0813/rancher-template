@@ -2,12 +2,13 @@ mongo-config:
   restart: always
   environment:
     MONGO_SERVICE_NAME: mongo-config
+    REPL_NAME: ${config_repl_set_name}
   tty: true
 # mongodb config server is by default on port 27019
 # so it does not work with the default replicatset setup provided in the DockerImage since it contains a hard-coded 27017
 # but because of the way  entrypoint.sh  is coded, we can not send the port via command ...
   entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /sec/mongo/mongodb-keyfile --configsvr --port 27017 --replSet \"${config_repl_set_name}\""
-  image: mongo:3.2
+  image: fangzi/mongodb
   labels:
     io.rancher.container.hostname_override: container_name
     io.rancher.sidekicks: mongo-base, mongo-datavolume
@@ -21,13 +22,12 @@ mongo-s:
     MONGO_SERVICE_NAME: mongo-s
   tty: true
   entrypoint: mongos --keyFile /sec/mongo/mongodb-keyfile --configdb ${config_repl_set_name}/mongo-config:27017
-  image: mongo:3.2
+  image: fangzi/mongodb
   labels:
     io.rancher.container.network: true
-  volumes_from:
-    - mongo-base
   links: 
-    - mongo-config  
+     - mongo-config
+     
 mongo-shard-one:
   restart: always
   environment:
@@ -35,7 +35,7 @@ mongo-shard-one:
     REPL_NAME: ${repl_set_prefix}_1
   tty: true
   entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /sec/mongo/mongodb-keyfile --port 27017 --replSet \"${repl_set_prefix}_1\""
-  image: mongo:3.2
+  image: fangzi/mongodb
   labels:
     io.rancher.container.hostname_override: container_name
     io.rancher.sidekicks: mongo-base-rs1, mongo-datavolume-rs1
@@ -44,7 +44,7 @@ mongo-shard-one:
     - mongo-datavolume-rs1
     - mongo-base-rs1
   links: 
-    - mongo-config
+     - mongo-config
 mongo-shard-two:
   restart: always
   environment:
@@ -52,7 +52,7 @@ mongo-shard-two:
     REPL_NAME: ${repl_set_prefix}_2
   tty: true
   entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /sec/mongo/mongodb-keyfile --port 27017 --replSet \"${repl_set_prefix}_2\""
-  image: mongo:3.2
+  image: fangzi/mongodb
   labels:
     io.rancher.container.hostname_override: container_name
     io.rancher.sidekicks: mongo-base-rs2, mongo-datavolume-rs2
@@ -61,7 +61,7 @@ mongo-shard-two:
     - mongo-datavolume-rs2
     - mongo-base-rs2
   links: 
-    - mongo-config    
+     - mongo-config    
 mongo-shard-three:
   restart: always
   environment:
@@ -69,7 +69,7 @@ mongo-shard-three:
     REPL_NAME: ${repl_set_prefix}_3
   tty: true
   entrypoint: "/opt/rancher/bin/entrypoint.sh --keyFile /sec/mongo/mongodb-keyfile --port 27017 --replSet \"${repl_set_prefix}_3\""
-  image: mongo:3.2
+  image: fangzi/mongodb
   labels:
     io.rancher.container.hostname_override: container_name
     io.rancher.sidekicks: mongo-base-rs3, mongo-datavolume-rs3
@@ -78,7 +78,7 @@ mongo-shard-three:
     - mongo-datavolume-rs3
     - mongo-base-rs3
   links: 
-    - mongo-config    
+     - mongo-config    
 
 mongo-base:
   restart: always
@@ -88,11 +88,11 @@ mongo-base:
     io.rancher.container.pull_image: always
     io.rancher.container.hostname_override: container_name
     io.rancher.container.start_once: true
-  image: 192.168.1.129:5000/gtintel/mongos-config
+  image: fangzi/mongos-config
   stdin_open: true
   entrypoint: /bin/true
   links: 
-    - mongo-s
+     - mongo-s
 # each shard should have it's own base otherwise it creates some name conflict during the deployment  
 mongo-base-rs1:
   restart: always
@@ -102,11 +102,11 @@ mongo-base-rs1:
     io.rancher.container.pull_image: always
     io.rancher.container.hostname_override: container_name
     io.rancher.container.start_once: true
-  image: 192.168.1.129:5000/gtintel/mongodb-config
+  image: fangzi/mongodb-config
   stdin_open: true
   entrypoint: /bin/true
   links: 
-    - mongo-s
+     - mongo-s
 mongo-base-rs2:
   restart: always
   net: none
@@ -115,11 +115,11 @@ mongo-base-rs2:
     io.rancher.container.pull_image: always
     io.rancher.container.hostname_override: container_name
     io.rancher.container.start_once: true
-  image: 192.168.1.129:5000/gtintel/mongodb-config
+  image: fangzi/mongodb-config
   stdin_open: true
   entrypoint: /bin/true
   links: 
-    - mongo-s
+     - mongo-s
 mongo-base-rs3:
   restart: always
   net: none
@@ -128,11 +128,11 @@ mongo-base-rs3:
     io.rancher.container.pull_image: always
     io.rancher.container.hostname_override: container_name
     io.rancher.container.start_once: true
-  image: 192.168.1.129:5000/gtintel/mongodb-config
+  image: fangzi/mongodb-config
   stdin_open: true
   entrypoint: /bin/true
   links: 
-    - mongo-s
+     - mongo-s
 
 mongo-datavolume:
   net: none
