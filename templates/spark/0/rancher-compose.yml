@@ -12,5 +12,5 @@
       type: "int"
 master:
   scale: 1
-master:
+worker:
   scale: ${scale}
