@@ -1,0 +1,16 @@
+.catalog:
+  name: "Spark"
+  version: "v1"
+  description: "Spark Cluster"
+  uuid: spark
+  questions:
+    - variable: "scale"
+      description: "Number of Spark Worker nodes."
+      label: "Spark Worker Nodes:"
+      required: true
+      default: 1
+      type: "int"
+master:
+  scale: 1
+master:
+  scale: ${scale}

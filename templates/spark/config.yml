@@ -1,0 +1,6 @@
+name: Spark
+description: |
+  Spark Cluster
+version: v1
+category: Applications
+maintainer: fangr <fangr@gtintel.cn>
