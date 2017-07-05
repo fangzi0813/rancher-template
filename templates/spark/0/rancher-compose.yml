@@ -10,6 +10,18 @@
       required: true
       default: 1
       type: "int"
+    - variable: "cores"
+      description: "SPARK WORKER CORES."
+      label: "SPARK WORKER CORES:"
+      required: true
+      default: 2
+      type: "int"
+    - variable: "memory"
+      description: "SPARK WORKER MEMORY."
+      label: "SPARK WORKER MEMORY(GB):"
+      required: true
+      default: 1
+      type: "int"
 master:
   scale: 1
 worker:

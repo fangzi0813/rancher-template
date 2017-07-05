@@ -30,8 +30,8 @@ worker:
   hostname: worker
   environment:
     SPARK_CONF_DIR: /conf
-    SPARK_WORKER_CORES: 2
-    SPARK_WORKER_MEMORY: 2g
+    SPARK_WORKER_CORES: ${cores}
+    SPARK_WORKER_MEMORY: ${memory}g
     SPARK_WORKER_PORT: 8881
     SPARK_WORKER_WEBUI_PORT: 8081
     SPARK_PUBLIC_DNS: localhost
