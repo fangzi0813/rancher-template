@@ -1,0 +1,88 @@
+.catalog:
+  name: "xxljob"
+  version: 1
+  description: "xxljob"
+  uuid: xxljob
+  questions:
+    - variable: "scale"
+      description: "Number of xxljob nodes."
+      label: "xxljob Nodes:"
+      required: true
+      default: 3
+      type: "int"
+    - variable: "zookeeper"
+      description: |
+        Choose the zookeeper service to use. 
+        It's really recommended a dedicated zookeeper service just for xxljob.
+      label: "Zookeeper stack/service"
+      default: "zk/zookeeper"
+      required: true
+      type: "service"
+    - variable: "host_label"
+      type: string
+      required: false
+      label: "Host Label to xxljob Tags"
+      description: "Host label to use as xxljob 'value' tag. Example: 'database'"
+    - variable: "lb_host_label"
+      type: string
+      required: false
+      label: "Host Label to xxljob Tags"
+      description: "Host label to use as xxljob 'value' tag. Example: 'database'"
+xxljob-boot:
+  scale: ${scale}
+  health_check:
+    port: 8081
+    interval: 5000
+    unhealthy_threshold: 3
+    healthy_threshold: 2
+    response_timeout: 5000
+    request_line: 'GET "/" "HTTP/1.0"'
+xxljob-admin:
+  scale: ${scale}
+  health_check:
+    port: 8080
+    interval: 5000
+    unhealthy_threshold: 3
+    healthy_threshold: 2
+    response_timeout: 5000
+    request_line: 'GET "/" "HTTP/1.0"'
+xxljob-admin-lb:
+  scale: 1
+  start_on_create: true
+  lb_config:
+    certs: []
+    port_rules:
+      - priority: 1
+        protocol: http
+        service: xxljob-admin
+        source_port: 8080
+        target_port: 8080
+  health_check:
+    response_timeout: 2000
+    healthy_threshold: 2
+    port: 42
+    unhealthy_threshold: 3
+    initializing_timeout: 60000
+    interval: 2000
+    reinitializing_timeout: 60000    
+xxljob-lb:
+  scale: 1
+  start_on_create: true
+  lb_config:
+    certs: []
+    port_rules:
+      - priority: 1
+        protocol: http
+        service: xxljob-boot
+        source_port: 9999
+        target_port: 9999
+  health_check:
+    response_timeout: 2000
+    healthy_threshold: 2
+    port: 42
+    unhealthy_threshold: 3
+    initializing_timeout: 60000
+    interval: 2000
+    reinitializing_timeout: 60000
+
+

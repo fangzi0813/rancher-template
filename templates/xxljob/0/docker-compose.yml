@@ -1,0 +1,43 @@
+xxljob-boot:
+  image: 192.168.1.129:5000/gtintel/xxl-job-executor-springboot
+  tty: true
+  external_links:
+    - ${zookeeper}:zookeeper
+  links:
+    - xxljob-admin-lb:xxl-job-admin01
+  restart: always
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+
+xxljob-lb:
+  image: rancher/lb-service-haproxy:v0.7.1
+  ports:
+    - 9999:9999/tcp
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.scheduler.affinity:host_label: ${lb_host_label}
+    io.rancher.container.agent.role: environmentAdmin
+    io.rancher.container.create_agent: 'true'
+    
+xxljob-admin:
+  image: 192.168.1.129:5000/gtintel/xxl-job
+  tty: true
+  external_links:
+    - ${mysql}:mysql
+  restart: always
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+    
+xxljob-admin-lb:
+  image: rancher/lb-service-haproxy:v0.7.1
+  ports:
+    - 8080:8080/tcp
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.scheduler.affinity:host_label: ${lb_host_label}
+    io.rancher.container.agent.role: environmentAdmin
+    io.rancher.container.create_agent: 'true'
