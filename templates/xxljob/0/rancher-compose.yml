@@ -18,6 +18,14 @@
       default: "zk/zookeeper"
       required: true
       type: "service"
+    - variable: "mysql"
+      description: |
+        Choose the mysql service to use. 
+        It's really recommended a dedicated mysql service just for xxljob.
+      label: "MySql stack/service"
+      default: "galera-lb/galera"
+      required: true
+      type: "service"
     - variable: "host_label"
       type: string
       required: false
